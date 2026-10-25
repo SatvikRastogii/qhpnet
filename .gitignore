@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.out
+results/stale/
+results/campaign.log
+figures/
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.pdf
