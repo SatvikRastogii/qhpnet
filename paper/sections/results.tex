@@ -1,0 +1,57 @@
+\subsection{Lifetime, Delivery and Energy}
+Table~\ref{tab:life} and Fig.~\ref{fig:alive} give the lossy-channel results. QHP-Net's first death comes at round $2{,}133\pm19$, which is 249 rounds (13.2\%) later than NSGA-II, 43--52\% later than the fuzzy, learned and HIECF selectors, and 2.0$\times$ later than LEACH. It also varies least across topologies: its FND standard deviation is 0.58 of NSGA-II's and one fifteenth of PEGASIS's (Fig.~\ref{fig:paired}). Only TEEN dies later, and only because it suppresses 89\% of the readings.
+
+QHP-Net delivers 98.3\% of the readings it senses, the highest yield of any clustered protocol, and spends 0.470\,mJ per delivered reading, 16\% less than the cheapest baseline (PEGASIS and NSGA-II, 0.56\,mJ). So it lives longer \emph{and} delivers more data per joule, which is the green-network result. The reason is where the energy goes. Retransmissions take 0.2\% of its budget, against 3.6\% for NSGA-II and 5.3\% for LEACH, because the learned ETX keeps sink hops out of the packet-error waterfall. This holds even though QHP-Net pays the largest control share of the centralised protocols (5.3\%, including its beacons and candidate reports).
+
+Max--min balancing has a visible cost in the same table. Nodes run down together, so HND follows FND by only 32 rounds, and the last node dies at round 2,208. That is earlier than NSGA-II (2,397), DQN (2,477), PEGASIS (2,560) and Direct (3,186), whose survivors last longer because the earlier deaths left them fewer duties. For coverage, keeping every node alive until round 2,133 is worth more than keeping a few until round 2,500. On the area under the alive curve, which counts both, QHP-Net ties PEGASIS ($216.4$ vs.\ $216.2\times10^3$, n.s.) and beats every other full-yield protocol, e.g.\ NSGA-II by $15.4\times10^3$.
+
+How close is this to the physical limit? Until the first death every node's reading must leave it each round. That costs at least one transmission plus either the amplifier to the sink or a reception and fusion elsewhere. Summing this floor over the nodes, with no control traffic, no retries and no relay chain, bounds FND at \fndbound{} rounds on average over the test topologies. QHP-Net reaches \fndfrac\% of the bound. The rest is accounted for by its 5.3\% control share and by the amplifier energy of the sink hops, both of which the bound ignores.
+
+\begin{table}[t]
+\caption{Lifetime on the lossy channel, mean $\pm$ s.d.\ over 30 paired runs. AUC in $10^3$ node-rounds; mJ per delivered reading. $^c$\,censored at the 7000-round cap in every run.}
+\label{tab:life}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Protocol & FND & HND & LND & AUC & Yield & mJ/rd\\
+\midrule
+\input{tables/lifetime_lossy.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{alive}
+\caption{Alive nodes per round, mean of 30 paired topologies (TEEN, censored at 7000 rounds, is omitted). QHP-Net keeps all 100 nodes alive longest under both channel models, and its curve does not move when packet loss is removed.}
+\label{fig:alive}
+\end{figure*}
+
+\subsection{Paired $t$-Tests}
+Table~\ref{tab:ttest} tests the per-topology differences. QHP-Net's first death is later than that of every full-yield opponent in \emph{all} 30 topologies on both channels; its smallest single margin over NSGA-II is 198 rounds (lossy) and 137 (ideal). Against NSGA-II the mean FND gain is $+249$ rounds, 95\% CI $[+238,+260]$, $t(29)=46.2$, $p_{Holm}=4.3\times10^{-28}$, $d_z=8.4$. The AUC gain is $15.4\times10^3$ node-rounds ($t(29)=38.0$, $d_z=6.9$). Shapiro--Wilk does not reject normality of the NSGA-II differences ($p{=}0.23$) but does reject it for some pairs (e.g.\ PEGASIS FND, $p{=}0.001$). We therefore confirmed every cell with the Wilcoxon signed-rank test. All cells but one are significant under both tests after Holm correction (largest $p=1.0\times10^{-5}$).
+
+Our earlier study found that the first-death gains of the fuzzy and DQN selectors over LEACH vanished on an ideal channel: 417 and 426 rounds fell to an insignificant 17 and 22~\cite{sharma2026unified}. QHP-Net's gain does not vanish. With packet loss removed it still leads NSGA-II by 168 rounds ($d_z=8.6$) and every other full-yield protocol by 478--1,806 rounds. Its own mean FND is the same on both channels (2,133), so its advantage is not just loss avoidance; it is about where energy is drawn from. PEGASIS is the one opponent QHP-Net does not beat everywhere. The two tie on AUC under loss, PEGASIS leads by $2.7\times10^3$ node-rounds on the ideal channel, and PEGASIS reaches HND 37 rounds later. In exchange QHP-Net delivers 15.6 percentage points more readings and its first node dies 533 rounds later.
+
+\begin{table*}[t]
+\caption{Paired differences QHP-Net $-$ opponent over 30 topologies: mean [95\% CI] and Cohen's $d_z$. Unless marked $^{ns}$, the difference is significant under both the paired $t$-test and the Wilcoxon test after Holm correction across opponents ($p\le1.0\times10^{-5}$). AUC in $10^3$ node-rounds. TEEN reaches its lead by delivering 11\% of the readings.}
+\label{tab:ttest}
+\centering\footnotesize
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+& \multicolumn{2}{c}{$\Delta$FND, lossy} & \multicolumn{2}{c}{$\Delta$FND, ideal} & \multicolumn{2}{c}{$\Delta$AUC, lossy} & \multicolumn{2}{c}{$\Delta$AUC, ideal}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(l){8-9}
+Opponent & mean [95\% CI] & $d_z$ & mean [95\% CI] & $d_z$ & mean & $d_z$ & mean & $d_z$\\
+\midrule
+\input{tables/ttest_combined.tex}
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{paired}
+\caption{Per-topology FND gain of QHP-Net over each opponent (dots: the 30 paired runs; bars: mean and 95\% CI). Every dot lies right of zero for every full-yield protocol on both channels.}
+\label{fig:paired}
+\end{figure*}
+
