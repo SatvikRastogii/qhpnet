@@ -1,0 +1,31 @@
+\subsection{Ablation Study}
+Table~\ref{tab:abl} and Fig.~\ref{fig:abl} remove one mechanism at a time on the 30 test topologies, paired against the full protocol. Every selection and clustering mechanism pays for itself on both channels; the channel-learning layer pays only where there is loss to learn.
+
+\emph{Hippopotamus Optimisation} matters most on average. Replacing it with the top-$k_h$ candidates by quorum ratio costs 103 rounds of FND under loss and 85 without it, and $5.4\times10^3$ node-rounds of AUC. A ranking cannot trade one head's member load against another's; the max-stress fitness can. \emph{Quorum sensing} adds 45--57 rounds over a pool of the most energetic nodes, because its refractory term and local normalisation stop the same well-placed nodes from being drafted epoch after epoch. Without the \emph{direct regime}, members that are cheaper to serve straight to the sink must pay a head's fusion and amplifier costs, and FND drops by 56--58 rounds.
+
+\emph{Stress-aware join} has the largest effect and the widest spread. Under loss, nearest-head joining costs 328 rounds on average, with a median of only 96; in 8 of the 30 topologies it costs more than 450 rounds, because without the stress term members can attach over links whose losses and load drain one head well ahead of the rest. With packet loss removed the cost falls to 42 rounds, so most of this mechanism's value is loss management. Its AUC is slightly \emph{higher} ($+1.2$ and $+2.0\times10^3$), which is the max--min trade-off of Section~\ref{sec:results} seen again: nearest-head joining lets some nodes die early and others live long.
+
+\emph{The pheromone memory} is an insurance mechanism. Without ETX its median cost is only 9 rounds, but in two topologies routing on raw distance-stress without ETX loses 317 and 388 rounds; the mean ($-35$, $p_{Holm}=0.08$) is therefore not significant, though the AUC loss is ($p<0.001$). On the ideal channel, where there is nothing to learn, removing it changes nothing ($+1.5$, n.s.). Learning link quality from ACKs alone is as good as knowing it: replacing $\tau$ with the true per-link PER changes FND by $+1.9$ rounds (n.s.) on the lossy channel. So the router needs no channel oracle.
+
+\emph{A negative result.} We also replaced greedy per-hop routing with a Physarum-inspired, congestion-aware router~\cite{tero2007physarum}, which reinforces tubes in proportion to the flow they carry. It loses 80--84 rounds on both channels. Reinforcing the busiest paths concentrates relay load on the nodes the max-stress fitness is trying to protect, so the two layers work against each other. We report it so that others need not repeat it.
+
+\begin{table}[t]
+\caption{Ablation on the lossy channel (30 paired runs). $\Delta$ is variant $-$ full, with Holm-adjusted paired-$t$ $p$ in parentheses. AUC in $10^3$ node-rounds.}
+\label{tab:abl}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Variant & FND & $\Delta$FND ($p$) & AUC & $\Delta$AUC ($p$) & Yield\\
+\midrule
+\input{tables/ablation_lossy.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{ablation}
+\caption{Change in FND when one mechanism is removed (or the Physarum router added), mean and 95\% CI over 30 paired topologies. Note the different $x$ scales: under loss the stress-aware join dominates, and without loss every learned-channel component is neutral.}
+\label{fig:abl}
+\end{figure*}
