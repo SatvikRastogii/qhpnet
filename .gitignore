@@ -3,7 +3,7 @@ __pycache__/
 *.out
 results/stale/
 results/campaign.log
-figures/
+/figures/
 paper/*.aux
 paper/*.log
 paper/*.bbl
