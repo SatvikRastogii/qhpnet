@@ -272,7 +272,7 @@ def sweep():
         vals = [np.mean([r["FND"] for r in g[(p, N, W)].values()]) if (p, N, W) in g else np.nan for N, W in cells]
         print(f"{p:9s} " + " ".join(f"{v:13.0f}" for v in vals))
         name = f"\\textbf{{{p}}}" if p == PROPOSED else p
-        lines.append(name + " & " + " & ".join(f"{v:,.0f}" for v in vals) + " \\\\")
+        lines.append(name + " & " + " & ".join(f"{v:.0f}" for v in vals) + " \\\\")
     # proposed vs the best other protocol in each cell
     print("\nQHP-Net vs best other protocol per cell (paired t, FND):")
     for N, W in cells:

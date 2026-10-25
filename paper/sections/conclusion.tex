@@ -1,0 +1,9 @@
+%% ======================================================================
+\section{Limitations}
+%% ======================================================================
+Results are simulated under the first-order radio model with ideal fusion and no idle-listening or sleep energy. QHP-Net is centralised: its state reports are charged, but the sink's computation (25 iterations of a 20-agent herd every five rounds) is not. Max--min balancing trades last-node death for first-node death (2,208 vs.\ 2,397 for NSGA-II), so applications that value a few long-lived survivors should use another objective. Latency is not reported because our slot model biases it. A testbed, a duty-cycled MAC and mobile sinks are future work.
+
+%% ======================================================================
+\section{Conclusion}
+%% ======================================================================
+QHP-Net gives candidacy, selection with membership, and routing each its own bio-inspired mechanism: quorum sensing, Hippopotamus Optimisation over a bottleneck-stress fitness, and an ant-pheromone link memory. Over 30 paired topologies it delays first-node death by 249 rounds over NSGA-II, the best full-yield protocol of our earlier study ($t(29)=46.2$, $d_z=8.4$), beats every full-yield protocol on FND in every topology, delivers 98.3\% of readings at 16\% less energy each, and reaches \fndfrac\% of a physical bound. Ablation credits all three layers and shows the ACK-learned link memory matches an oracle. For a green network, lifetime is set by the most stressed node, and every layer should be optimised against it directly.

@@ -1,0 +1,154 @@
+
+=== headline, lossy channel ===
+Direct    n=30 FND     115±  10 HND   1140 LND   3186 cens  0 AUC  132.6k yield 0.967 PDR 0.967 J/rd 0.784mJ ctrl  0.0% retry 14.3% gini 0.00 setup   0.01ms lat    17ms
+LEACH     n=30 FND    1051±  51 HND   1674 LND   2160 cens  0 AUC  166.4k yield 0.867 PDR 0.867 J/rd 0.694mJ ctrl 12.4% retry  5.3% gini 0.08 setup   0.11ms lat   589ms
+PEGASIS   n=30 FND    1600± 286 HND   2202 LND   2560 cens  0 AUC  216.2k yield 0.827 PDR 0.827 J/rd 0.560mJ ctrl  4.4% retry  1.7% gini 0.16 setup   0.09ms lat    57ms
+TEEN      n=30 FND    2297± 145 HND   5975 LND   7000 cens 30 AUC  558.9k yield 0.107 PDR 0.902 J/rd 1.647mJ ctrl 40.9% retry  8.4% gini 0.14 setup   0.14ms lat   589ms
+NSGA-II   n=30 FND    1884±  33 HND   1984 LND   2397 cens  0 AUC  201.1k yield 0.888 PDR 0.888 J/rd 0.561mJ ctrl  2.5% retry  3.6% gini 0.22 setup  17.68ms lat   418ms
+Fuzzy-T2  n=30 FND    1476±  61 HND   1922 LND   2208 cens  0 AUC  189.2k yield 0.899 PDR 0.899 J/rd 0.588mJ ctrl  3.8% retry  3.3% gini 0.32 setup   2.37ms lat   605ms
+DQN       n=30 FND    1403±  52 HND   1875 LND   2477 cens  0 AUC  189.0k yield 0.882 PDR 0.882 J/rd 0.601mJ ctrl  3.8% retry  4.5% gini 0.19 setup   0.39ms lat   506ms
+HIECF     n=30 FND    1490± 128 HND   1930 LND   2218 cens  0 AUC  191.2k yield 0.905 PDR 0.905 J/rd 0.578mJ ctrl  3.9% retry  2.6% gini 0.30 setup   3.28ms lat   511ms
+QHP-Net   n=30 FND    2133±  19 HND   2165 LND   2208 cens  0 AUC  216.4k yield 0.983 PDR 0.983 J/rd 0.470mJ ctrl  5.3% retry  0.2% gini 0.19 setup  35.19ms lat   232ms
+
+=== headline, ideal channel ===
+Direct    n=30 FND     327±  21 HND   1237 LND   3186 cens  0 AUC  142.6k yield 0.999 PDR 0.999 J/rd 0.703mJ ctrl  0.0% retry  0.0% gini 0.00 setup   0.01ms lat    17ms
+LEACH     n=30 FND    1482±  31 HND   1699 LND   2166 cens  0 AUC  174.3k yield 0.995 PDR 0.995 J/rd 0.576mJ ctrl 13.3% retry  0.2% gini 0.05 setup   0.11ms lat   592ms
+PEGASIS   n=30 FND    1655± 311 HND   2208 LND   2626 cens  0 AUC  219.2k yield 0.994 PDR 0.994 J/rd 0.459mJ ctrl  4.5% retry  0.0% gini 0.17 setup   0.09ms lat    57ms
+TEEN      n=30 FND    4287± 146 HND   5976 LND   7000 cens 30 AUC  593.3k yield 0.118 PDR 0.998 J/rd 1.403mJ ctrl 44.9% retry  0.0% gini 0.09 setup   0.14ms lat   592ms
+NSGA-II   n=30 FND    1965±  21 HND   2050 LND   2330 cens  0 AUC  207.0k yield 0.998 PDR 0.998 J/rd 0.484mJ ctrl  2.5% retry  0.1% gini 0.17 setup  18.02ms lat   424ms
+Fuzzy-T2  n=30 FND    1502±  59 HND   1971 LND   2308 cens  0 AUC  194.3k yield 0.998 PDR 0.998 J/rd 0.516mJ ctrl  3.9% retry  0.1% gini 0.27 setup   2.43ms lat   599ms
+DQN       n=30 FND    1476±  29 HND   1940 LND   2520 cens  0 AUC  195.6k yield 0.989 PDR 0.989 J/rd 0.517mJ ctrl  4.0% retry  0.5% gini 0.16 setup   0.41ms lat   504ms
+HIECF     n=30 FND    1485± 112 HND   1961 LND   2325 cens  0 AUC  195.5k yield 0.998 PDR 0.998 J/rd 0.512mJ ctrl  4.0% retry  0.1% gini 0.27 setup   3.25ms lat   517ms
+QHP-Net   n=30 FND    2133±  17 HND   2166 LND   2215 cens  0 AUC  216.5k yield 0.997 PDR 0.997 J/rd 0.463mJ ctrl  5.3% retry  0.1% gini 0.20 setup  34.85ms lat   230ms
+
+--- paired tests vs QHP-Net, lossy ---
+FND   vs Direct    n=30 diff  2018.700 CI [ 2011.961, 2025.439] t=  612.70 p=3.48e-61 pHolm=2.78e-60 dz=111.86 SW=0.034 Wil=1.72e-06
+FND   vs LEACH     n=30 diff  1081.933 CI [ 1062.492, 1101.375] t=  113.82 p=5.34e-40 pHolm=3.74e-39 dz= 20.78 SW=0.799 Wil=1.73e-06
+FND   vs PEGASIS   n=30 diff   532.867 CI [  425.115,  640.619] t=   10.11 p=5.10e-11 pHolm=1.02e-10 dz=  1.85 SW=0.001 Wil=1.86e-09
+FND   vs TEEN      n=30 diff  -163.700 CI [ -216.307, -111.093] t=   -6.36 p=5.89e-07 pHolm=5.89e-07 dz= -1.16 SW=0.494 Wil=2.35e-06
+FND   vs NSGA-II   n=30 diff   249.300 CI [  238.252,  260.348] t=   46.15 p=1.07e-28 pHolm=4.27e-28 dz=  8.43 SW=0.233 Wil=1.71e-06
+FND   vs Fuzzy-T2  n=30 diff   657.667 CI [  633.734,  681.599] t=   56.20 p=3.74e-31 pHolm=1.87e-30 dz= 10.26 SW=0.802 Wil=1.73e-06
+FND   vs DQN       n=30 diff   730.267 CI [  710.205,  750.329] t=   74.45 p=1.14e-34 pHolm=6.83e-34 dz= 13.59 SW=0.038 Wil=1.73e-06
+FND   vs HIECF     n=30 diff   643.300 CI [  594.996,  691.604] t=   27.24 p=3.30e-22 pHolm=9.89e-22 dz=  4.97 SW=0.103 Wil=1.86e-09
+HND   vs Direct    n=30 diff  1025.133 CI [  951.679, 1098.588] t=   28.54 p=8.89e-23 pHolm=2.67e-22 dz=  5.21 SW=0.192 Wil=1.73e-06
+HND   vs LEACH     n=30 diff   491.200 CI [  482.256,  500.144] t=  112.32 p=7.84e-40 pHolm=6.27e-39 dz= 20.51 SW=0.102 Wil=1.73e-06
+HND   vs PEGASIS   n=30 diff   -36.967 CI [  -43.429,  -30.504] t=  -11.70 p=1.68e-12 pHolm=1.68e-12 dz= -2.14 SW=0.055 Wil=1.90e-06
+HND   vs TEEN      n=30 diff -3810.500 CI [-3891.317,-3729.683] t=  -96.43 p=6.46e-38 pHolm=4.52e-37 dz=-17.61 SW=0.926 Wil=1.73e-06
+HND   vs NSGA-II   n=30 diff   181.100 CI [  170.861,  191.339] t=   36.17 p=1.11e-25 pHolm=4.44e-25 dz=  6.60 SW=0.320 Wil=1.73e-06
+HND   vs Fuzzy-T2  n=30 diff   243.433 CI [  231.658,  255.208] t=   42.28 p=1.30e-27 pHolm=6.52e-27 dz=  7.72 SW=0.249 Wil=1.73e-06
+HND   vs DQN       n=30 diff   289.800 CI [  279.919,  299.681] t=   59.99 p=5.74e-32 pHolm=3.45e-31 dz= 10.95 SW=0.646 Wil=1.73e-06
+HND   vs HIECF     n=30 diff   235.433 CI [  217.551,  253.316] t=   26.93 p=4.55e-22 pHolm=9.09e-22 dz=  4.92 SW=0.689 Wil=1.73e-06
+AUC   vs Direct    n=30 diff 83878.033 CI [80725.468,87030.599] t=   54.42 p=9.47e-31 pHolm=3.79e-30 dz=  9.93 SW=0.530 Wil=1.86e-09
+AUC   vs LEACH     n=30 diff 50019.167 CI [49082.769,50955.564] t=  109.25 p=1.75e-39 pHolm=1.22e-38 dz= 19.95 SW=0.758 Wil=1.86e-09
+AUC   vs PEGASIS   n=30 diff   279.500 CI [ -470.596, 1029.596] t=    0.76 p=4.52e-01 pHolm=4.52e-01 dz=  0.14 SW=0.533 Wil=4.65e-01
+AUC   vs TEEN      n=30 diff -342501.433 CI [-347616.204,-337386.662] t= -136.96 p=2.52e-42 pHolm=2.02e-41 dz=-25.00 SW=0.615 Wil=1.86e-09
+AUC   vs NSGA-II   n=30 diff 15360.667 CI [14533.974,16187.359] t=   38.00 p=2.73e-26 pHolm=5.46e-26 dz=  6.94 SW=0.223 Wil=1.86e-09
+AUC   vs Fuzzy-T2  n=30 diff 27245.700 CI [26246.027,28245.373] t=   55.74 p=4.74e-31 pHolm=2.37e-30 dz= 10.18 SW=0.113 Wil=1.86e-09
+AUC   vs DQN       n=30 diff 27459.367 CI [26520.295,28398.439] t=   59.80 p=6.27e-32 pHolm=3.76e-31 dz= 10.92 SW=0.804 Wil=1.86e-09
+AUC   vs HIECF     n=30 diff 25255.967 CI [24114.247,26397.686] t=   45.24 p=1.88e-28 pHolm=5.65e-28 dz=  8.26 SW=0.011 Wil=1.86e-09
+yield vs Direct    n=30 diff     0.016 CI [    0.012,    0.019] t=    9.46 p=2.32e-10 pHolm=2.32e-10 dz=  1.73 SW=0.049 Wil=2.61e-08
+yield vs LEACH     n=30 diff     0.115 CI [    0.106,    0.125] t=   24.15 p=9.36e-21 pHolm=5.62e-20 dz=  4.41 SW=0.712 Wil=1.86e-09
+yield vs PEGASIS   n=30 diff     0.156 CI [    0.144,    0.167] t=   27.63 p=2.22e-22 pHolm=1.55e-21 dz=  5.04 SW=0.547 Wil=1.86e-09
+yield vs TEEN      n=30 diff     0.876 CI [    0.871,    0.880] t=  381.95 p=3.11e-55 pHolm=2.49e-54 dz= 69.73 SW=0.000 Wil=1.86e-09
+yield vs NSGA-II   n=30 diff     0.095 CI [    0.087,    0.104] t=   22.44 p=7.05e-20 pHolm=2.82e-19 dz=  4.10 SW=0.551 Wil=1.86e-09
+yield vs Fuzzy-T2  n=30 diff     0.084 CI [    0.075,    0.092] t=   20.47 p=8.74e-19 pHolm=2.62e-18 dz=  3.74 SW=0.819 Wil=1.86e-09
+yield vs DQN       n=30 diff     0.101 CI [    0.093,    0.110] t=   24.08 p=1.02e-20 pHolm=5.62e-20 dz=  4.40 SW=0.448 Wil=1.86e-09
+yield vs HIECF     n=30 diff     0.078 CI [    0.070,    0.086] t=   19.45 p=3.50e-18 pHolm=7.00e-18 dz=  3.55 SW=0.661 Wil=1.86e-09
+
+--- paired tests vs QHP-Net, ideal ---
+FND   vs Direct    n=30 diff  1806.300 CI [ 1797.280, 1815.320] t=  409.56 p=4.11e-56 pHolm=3.28e-55 dz= 74.78 SW=0.838 Wil=1.73e-06
+FND   vs LEACH     n=30 diff   651.500 CI [  640.910,  662.090] t=  125.83 p=2.93e-41 pHolm=1.76e-40 dz= 22.97 SW=0.140 Wil=1.73e-06
+FND   vs PEGASIS   n=30 diff   478.167 CI [  361.975,  594.358] t=    8.42 p=2.82e-09 pHolm=2.82e-09 dz=  1.54 SW=0.006 Wil=1.86e-09
+FND   vs TEEN      n=30 diff -2153.900 CI [-2207.326,-2100.474] t=  -82.45 p=5.96e-36 pHolm=2.98e-35 dz=-15.05 SW=0.107 Wil=1.73e-06
+FND   vs NSGA-II   n=30 diff   168.100 CI [  160.771,  175.429] t=   46.91 p=6.68e-29 pHolm=2.00e-28 dz=  8.56 SW=0.432 Wil=1.73e-06
+FND   vs Fuzzy-T2  n=30 diff   631.733 CI [  608.680,  654.786] t=   56.05 p=4.05e-31 pHolm=1.62e-30 dz= 10.23 SW=0.379 Wil=1.73e-06
+FND   vs DQN       n=30 diff   657.133 CI [  647.969,  666.298] t=  146.65 p=3.48e-43 pHolm=2.44e-42 dz= 26.77 SW=0.561 Wil=1.73e-06
+FND   vs HIECF     n=30 diff   648.233 CI [  605.998,  690.469] t=   31.39 p=6.14e-24 pHolm=1.23e-23 dz=  5.73 SW=0.042 Wil=1.73e-06
+HND   vs Direct    n=30 diff   928.800 CI [  870.125,  987.475] t=   32.38 p=2.57e-24 pHolm=7.70e-24 dz=  5.91 SW=0.171 Wil=1.73e-06
+HND   vs LEACH     n=30 diff   466.733 CI [  459.524,  473.943] t=  132.41 p=6.70e-42 pHolm=5.36e-41 dz= 24.17 SW=0.928 Wil=1.73e-06
+HND   vs PEGASIS   n=30 diff   -42.400 CI [  -48.290,  -36.510] t=  -14.72 p=5.43e-15 pHolm=5.43e-15 dz= -2.69 SW=0.067 Wil=1.73e-06
+HND   vs TEEN      n=30 diff -3810.567 CI [-3883.430,-3737.703] t= -106.96 p=3.23e-39 pHolm=2.26e-38 dz=-19.53 SW=0.975 Wil=1.86e-09
+HND   vs NSGA-II   n=30 diff   115.800 CI [  109.542,  122.058] t=   37.85 p=3.07e-26 pHolm=1.53e-25 dz=  6.91 SW=0.547 Wil=1.72e-06
+HND   vs Fuzzy-T2  n=30 diff   195.233 CI [  183.803,  206.664] t=   34.93 p=2.99e-25 pHolm=1.19e-24 dz=  6.38 SW=0.037 Wil=1.73e-06
+HND   vs DQN       n=30 diff   225.933 CI [  217.835,  234.032] t=   57.06 p=2.43e-31 pHolm=1.46e-30 dz= 10.42 SW=0.177 Wil=1.73e-06
+HND   vs HIECF     n=30 diff   204.867 CI [  189.034,  220.700] t=   26.46 p=7.37e-22 pHolm=1.47e-21 dz=  4.83 SW=0.127 Wil=1.73e-06
+AUC   vs Direct    n=30 diff 73897.733 CI [71095.805,76699.662] t=   53.94 p=1.22e-30 pHolm=6.09e-30 dz=  9.85 SW=0.570 Wil=1.86e-09
+AUC   vs LEACH     n=30 diff 42192.600 CI [41560.652,42824.548] t=  136.55 p=2.75e-42 pHolm=1.92e-41 dz= 24.93 SW=0.098 Wil=1.86e-09
+AUC   vs PEGASIS   n=30 diff -2663.733 CI [-3358.624,-1968.843] t=   -7.84 p=1.20e-08 pHolm=1.20e-08 dz= -1.43 SW=0.770 Wil=1.30e-07
+AUC   vs TEEN      n=30 diff -376794.567 CI [-380104.954,-373484.180] t= -232.79 p=5.33e-49 pHolm=4.26e-48 dz=-42.50 SW=0.748 Wil=1.86e-09
+AUC   vs NSGA-II   n=30 diff  9484.500 CI [ 8948.492,10020.508] t=   36.19 p=1.09e-25 pHolm=2.19e-25 dz=  6.61 SW=0.266 Wil=1.86e-09
+AUC   vs Fuzzy-T2  n=30 diff 22254.600 CI [21385.327,23123.873] t=   52.36 p=2.86e-30 pHolm=1.14e-29 dz=  9.56 SW=0.050 Wil=1.86e-09
+AUC   vs DQN       n=30 diff 20882.000 CI [20243.634,21520.366] t=   66.90 p=2.48e-33 pHolm=1.49e-32 dz= 12.21 SW=0.215 Wil=1.86e-09
+AUC   vs HIECF     n=30 diff 21023.467 CI [20026.937,22019.996] t=   43.15 p=7.31e-28 pHolm=2.19e-27 dz=  7.88 SW=0.037 Wil=1.86e-09
+yield vs Direct    n=30 diff    -0.002 CI [   -0.002,   -0.002] t=  -23.61 p=1.75e-20 pHolm=1.05e-19 dz= -4.31 SW=0.869 Wil=1.86e-09
+yield vs LEACH     n=30 diff     0.002 CI [    0.002,    0.003] t=   13.84 p=2.63e-14 pHolm=1.05e-13 dz=  2.53 SW=0.438 Wil=3.73e-09
+yield vs PEGASIS   n=30 diff     0.003 CI [    0.003,    0.003] t=   16.07 p=5.56e-16 pHolm=2.78e-15 dz=  2.93 SW=0.319 Wil=1.86e-09
+yield vs TEEN      n=30 diff     0.879 CI [    0.878,    0.879] t= 2816.52 p=2.14e-80 pHolm=1.71e-79 dz=514.22 SW=0.219 Wil=1.86e-09
+yield vs NSGA-II   n=30 diff    -0.001 CI [   -0.001,   -0.001] t=   -7.27 p=5.19e-08 pHolm=1.56e-07 dz= -1.33 SW=0.171 Wil=1.02e-07
+yield vs Fuzzy-T2  n=30 diff    -0.001 CI [   -0.001,   -0.001] t=   -6.57 p=3.34e-07 pHolm=3.34e-07 dz= -1.20 SW=0.133 Wil=3.79e-06
+yield vs DQN       n=30 diff     0.008 CI [    0.008,    0.008] t=   62.03 p=2.19e-32 pHolm=1.54e-31 dz= 11.32 SW=0.540 Wil=1.86e-09
+yield vs HIECF     n=30 diff    -0.001 CI [   -0.001,   -0.001] t=   -7.06 p=9.14e-08 pHolm=1.83e-07 dz= -1.29 SW=0.255 Wil=5.72e-07
+combined table: max Holm p among significant cells 1.04e-05; non-significant: [('PEGASIS', 'AUC', True)]
+
+FND upper bound (lossy cfg): 2436 ± 15; QHP-Net reaches 87.6% of it
+
+=== ablation, lossy ===
+QHP-Net                    FND    2133 AUC  216.4k
+w/o quorum sensing         FND    2088 dFND   -45.0 [-58.3,-31.7] pHolm 5.13e-07 | dAUC  -0.88k pHolm 6.11e-06 yield 0.982
+w/o hippopotamus opt.      FND    2030 dFND  -102.9 [-116.9,-88.8] pHolm 1.81e-14 | dAUC  -5.43k pHolm 1.14e-13 yield 0.970
+w/o direct regime          FND    2076 dFND   -57.5 [-63.8,-51.2] pHolm 7.33e-17 | dAUC  -5.91k pHolm 9.14e-18 yield 0.987
+w/o stress-aware join      FND    1806 dFND  -327.5 [-496.8,-158.3] pHolm 1.34e-03 | dAUC  +1.19k pHolm 2.01e-07 yield 0.986
+w/o pheromone (no ETX)     FND    2098 dFND   -35.4 [-68.7,-2.1] pHolm 7.60e-02 | dAUC  -0.73k pHolm 2.35e-05 yield 0.975
+oracle link quality        FND    2135 dFND    +1.9 [-1.4,+5.2] pHolm 2.43e-01 | dAUC  +0.16k pHolm 5.49e-02 yield 0.989
++ Physarum router          FND    2053 dFND   -80.2 [-86.9,-73.5] pHolm 4.22e-20 | dAUC  -7.22k pHolm 1.36e-27 yield 0.970
+
+=== ablation, ideal ===
+QHP-Net                    FND    2133 AUC  216.5k
+w/o quorum sensing         FND    2076 dFND   -57.4 [-75.3,-39.5] pHolm 1.02e-06 | dAUC  -1.25k pHolm 2.34e-08 yield 0.997
+w/o hippopotamus opt.      FND    2048 dFND   -85.2 [-93.1,-77.3] pHolm 7.30e-19 | dAUC  -4.47k pHolm 1.35e-17 yield 0.997
+w/o direct regime          FND    2077 dFND   -56.0 [-61.9,-50.0] pHolm 2.51e-17 | dAUC  -5.90k pHolm 4.82e-18 yield 0.996
+w/o stress-aware join      FND    2092 dFND   -41.8 [-53.5,-30.2] pHolm 1.80e-07 | dAUC  +1.95k pHolm 1.40e-16 yield 0.998
+w/o pheromone (no ETX)     FND    2135 dFND    +1.5 [-1.8,+4.8] pHolm 3.57e-01 | dAUC  +0.08k pHolm 8.16e-01 yield 0.997
+oracle link quality        FND    2136 dFND    +2.1 [-0.3,+4.5] pHolm 1.55e-01 | dAUC  +0.05k pHolm 8.16e-01 yield 0.997
++ Physarum router          FND    2049 dFND   -84.3 [-88.0,-80.6] pHolm 4.11e-28 | dAUC  -7.93k pHolm 4.98e-29 yield 0.998
+
+=== NSGA-II warm-start fairness check ===
+lossy: warm FND 1881, warm-cold -3.1 p=0.484; QHP-warm +252.4 [+241.2,+263.5] p=9.51e-29 dz=8.5
+ideal: warm FND 1968, warm-cold +2.4 p=0.479; QHP-warm +165.7 [+159.1,+172.3] p=5.11e-30 dz=9.4
+
+=== three-level heterogeneity (m=0.2, b=0.1), lossy ===
+LEACH     FND    1057±  47 HND   1797 AUC  225.3k yield 0.877  dFND(QHP-x) +1837 pHolm 3.44e-40
+PEGASIS   FND    1673± 280 HND   2227 AUC  295.1k yield 0.834  dFND(QHP-x) +1221 pHolm 1.73e-20
+NSGA-II   FND    2573±  81 HND   2688 AUC  280.5k yield 0.888  dFND(QHP-x) +321 pHolm 3.56e-21
+Fuzzy-T2  FND    2085±  89 HND   2690 AUC  265.8k yield 0.898  dFND(QHP-x) +809 pHolm 1.20e-27
+DQN       FND    1506±  86 HND   2181 AUC  258.6k yield 0.878  dFND(QHP-x) +1388 pHolm 5.78e-33
+HIECF     FND    2092± 162 HND   2654 AUC  266.5k yield 0.905  dFND(QHP-x) +802 pHolm 1.13e-21
+QHP-Net   FND    2894±  64 HND   2963 AUC  296.1k yield 0.983
+
+=== uplink charged for every centralised protocol, lossy ===
+NSGA-II   FND    1841±  32 HND   1942 AUC  197.4k yield 0.889  dFND(QHP-x) +254 pHolm 2.68e-27
+Fuzzy-T2  FND    1366±  55 HND   1761 AUC  173.3k yield 0.915  dFND(QHP-x) +729 pHolm 1.10e-33
+DQN       FND    1170±  70 HND   1696 AUC  172.9k yield 0.883  dFND(QHP-x) +925 pHolm 1.10e-33
+HIECF     FND    1392± 112 HND   1772 AUC  174.2k yield 0.924  dFND(QHP-x) +703 pHolm 2.47e-25
+QHP-Net   FND    2095±  18 HND   2131 AUC  213.1k yield 0.983
+
+=== sweep FND (15 paired runs per cell) ===
+         50x50/N50   50x50/N100  50x50/N150  100x100/N50   100x100/N100  100x100/N150  150x150/N50   150x150/N100  150x150/N150 
+Direct             2297          2020          1976           122           114           112            25            23            23
+LEACH              1808          1620          1578           642          1045          1106           154           313           354
+PEGASIS            2090          2083          2080          1463          1626          1554           624           772           810
+NSGA-II            2130          2186          2176          1787          1883          1875           761          1107          1124
+DQN                1562          1614          1677          1322          1389          1454           447           605           673
+HIECF              1637          1651          1643          1422          1478          1491           412           500           569
+QHP-Net            2697          2723          2718          1972          2138          2149          1060          1826          1933
+
+QHP-Net vs best other protocol per cell (paired t, FND):
+  50x50 N=50: best other Direct   diff    +400 p=1.62e-09
+  50x50 N=100: best other NSGA-II  diff    +538 p=1.65e-15
+  50x50 N=150: best other NSGA-II  diff    +542 p=3.95e-17
+  100x100 N=50: best other NSGA-II  diff    +185 p=9.15e-09
+  100x100 N=100: best other NSGA-II  diff    +255 p=3.38e-14
+  100x100 N=150: best other NSGA-II  diff    +274 p=9.67e-16
+  150x150 N=50: best other NSGA-II  diff    +299 p=2.76e-06
+  150x150 N=100: best other NSGA-II  diff    +719 p=1.76e-17
+  150x150 N=150: best other NSGA-II  diff    +809 p=8.39e-19

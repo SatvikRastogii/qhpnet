@@ -1,0 +1,42 @@
+\subsection{Robustness}\label{sec:robust}
+\emph{Warm-starting NSGA-II.} QHP-Net reuses its previous population; NSGA-II re-optimises from scratch. Giving NSGA-II the same warm start does not help it (FND 1,881 vs.\ 1,884 lossy, 1,968 vs.\ 1,965 ideal, both $p=0.48$), and QHP-Net still leads by $+252$ [$+241,+264$] rounds ($d_z=8.5$). The gain comes from the objective, not the memory.
+
+\emph{Heterogeneous energy.} With three energy levels (20\% of nodes advanced at $2E_0$, 10\% super at $3E_0$), QHP-Net's FND rises to 2,894, and its lead over NSGA-II grows to $+321$ rounds (Table~\ref{tab:robust}). Because the fitness divides drain by residual energy, load moves onto high-energy nodes without any heterogeneity-specific rule. (DQN was trained on homogeneous fields only.)
+
+\emph{Charging the uplink.} The headline runs, like the earlier study, let centralised protocols learn node state free from data traffic. If every alive node instead pays a 200-bit report at each re-clustering, QHP-Net loses 38 rounds and NSGA-II 43; Fuzzy, DQN and HIECF lose 98--233, because they re-cluster every round. QHP-Net still wins all 30 topologies, by at least 200 rounds.
+
+\emph{Network size and field.} Table~\ref{tab:sweep} varies $N\in\{50,100,150\}$ and the field side $W$ from 50 to 150\,m (sink at $(W/2,1.5W)$, 15 paired topologies per cell). QHP-Net has the highest mean FND in all nine cells, beats the best other protocol in each under a paired $t$-test ($p<3\times10^{-6}$), and wins 134 of 135 topologies; the one loss, by 12 rounds, is 50 nodes on a 150\,m field. The margin grows with density: $+185$ to $+274$ rounds at 100\,m and $+299$ to $+809$ at 150\,m, where sink hops pay the multipath amplifier. On the 50\,m field, where Direct is competitive (2,297 at $N{=}50$), the direct regime uses it selectively and still adds 400--542 rounds.
+
+\begin{table}[t]
+\caption{Robustness on the lossy channel, 30 paired runs: three-level heterogeneity (top) and uplink state reports charged to every centralised protocol (bottom). AUC in $10^3$ node-rounds.}
+\label{tab:robust}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Protocol & FND & HND & AUC & Yield\\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Heterogeneous} ($m=0.2$, $b=0.1$)}\\
+\input{tables/hetero.tex}
+\midrule
+\multicolumn{5}{@{}l}{\emph{Uplink charged}}\\
+\input{tables/uplink.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{Mean FND over 15 paired topologies per cell (lossy). Columns: field side $W$ (m) / number of nodes $N$.}
+\label{tab:sweep}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+& \multicolumn{3}{c}{$W=50$} & \multicolumn{3}{c}{$W=100$} & \multicolumn{3}{c}{$W=150$}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(l){8-10}
+Protocol & 50 & 100 & 150 & 50 & 100 & 150 & 50 & 100 & 150\\
+\midrule
+\input{tables/sweep.tex}
+\bottomrule
+\end{tabular}}
+\end{table}
