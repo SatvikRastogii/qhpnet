@@ -7,7 +7,7 @@ Paired Monte Carlo study of QHP-Net (quorum-sensing candidacy, Hippopotamus-opti
 |---|---|
 | `config.py` | the single frozen parameter set (Table II of the paper) |
 | `engine.py` | world generation, radio/channel model, ARQ, fusion, control pricing, metrics; energy conservation asserted every run |
-| `protocols/` | `baseline_simple.py` (Direct, LEACH), `classic.py` (PEGASIS, TEEN), `nsga2.py`, `fuzzy.py` (Fuzzy-T2, HIECF), `dqn.py` (+ trainer, `weights/dqn.npz`), `qhp.py` (proposed) |
+| `protocols/` | `baseline_simple.py` (Direct, LEACH), `classic.py` (PEGASIS, TEEN), `nsga2.py`, `fuzzy.py` (Fuzzy-T2), `dqn.py` (+ trainer, `weights/dqn.npz`), `qhp.py` (proposed) |
 | `montecarlo.py` | experiments: `headline`, `ablation`, `hetero`, `uplink`, `sweep` → `results/*.jsonl` (resumable) |
 | `stats.py` | paired t-tests, Holm, Cohen's d_z, Shapiro–Wilk, Wilcoxon, LaTeX tables → `paper/tables/` |
 | `figures.py` | figures → `paper/figures/` |

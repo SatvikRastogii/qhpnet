@@ -1,4 +1,4 @@
-"""Interval type-2 fuzzy cluster-head selection (Fuzzy-T2) and HIECF (IT2 fuzzy + Q-learning + multi-hop heads)."""
+"""Interval type-2 fuzzy cluster-head selection (Fuzzy-T2)."""
 import numpy as np
 
 from engine import Protocol
@@ -79,78 +79,3 @@ class FuzzyT2(Protocol):
         heads[np.argsort(-S, kind="stable")[:k]] = True
         return nearest_head_structure(s, heads)
 
-
-# ---------------------------------------------------------------- HIECF
-class HIECF(Protocol):
-    """Candidates: S_i above the 60th percentile of alive scores each round (K ~ 40% of alive nodes; the paper's
-    fixed S_th is not transferable across energy scales). Q-learning picks one of 3 candidate rankings."""
-    name = "HIECF"
-    control = "centralized"
-    W = (0.4, 0.3, 0.3)
-    ALPHA, GAMMA, EPS0, EPS1, EPS_T = 0.1, 0.9, 0.1, 0.01, 1000
-    # ranking weights on (residual energy ratio, closeness to BS, fuzzy score): energy-heavy, distance-heavy, balanced
-    ACTIONS = np.array([[0.7, 0.1, 0.2], [0.1, 0.7, 0.2], [0.35, 0.35, 0.3]])
-
-    def reset(self, world, rng):
-        self.rng = rng
-        self.Q = np.zeros((25, 3))
-        self.prev = None        # (state, action, total residual, heads)
-        self.Emax_init = float(world.E_init.max())
-
-    @staticmethod
-    def _state(s):
-        a = s.alive
-        er = float((s.E[a] / s.E_init[a]).mean()) if a.any() else 0.0
-        af = float(a.mean())
-        return 5 * min(int(er * 5), 4) + min(int(af * 5), 4)
-
-    def _reward(self, s):
-        _, _, Eprev, hprev = self.prev
-        a = s.alive
-        Ea = s.E[a]
-        bal = 1.0 - float(Ea.std() / Ea.mean()) if a.any() and Ea.mean() > 0 else 0.0
-        h = np.flatnonzero(hprev)
-        pdr = float(np.mean(1.0 - s.per[h, s.cfg.N])) if h.size else 0.0
-        ec = float(np.clip((Eprev - s.E.sum()) / (0.01 * s.cfg.N * s.E_init.mean()), 0.0, 1.0))
-        return self.W[0] * bal + self.W[1] * pdr - self.W[2] * ec
-
-    def setup(self, s):
-        cfg, N = s.cfg, s.cfg.N
-        st = self._state(s)
-        if self.prev is not None:                                   # online Q update for the previous round
-            ps, pa = self.prev[0], self.prev[1]
-            self.Q[ps, pa] += self.ALPHA * (self._reward(s) + self.GAMMA * self.Q[st].max() - self.Q[ps, pa])
-        eps = max(self.EPS1, self.EPS0 + (self.EPS1 - self.EPS0) * s.r / self.EPS_T)
-        if self.rng.random() < eps:
-            act = int(self.rng.integers(3))
-        else:
-            q = self.Q[st]
-            act = int(self.rng.choice(np.flatnonzero(q == q.max())))
-
-        S = fuzzy_scores(s)
-        a = s.alive
-        k = min(n_heads(s), int(a.sum()))
-        cand = a & (S > np.percentile(S[a], 60))
-        if cand.sum() < k:                                          # too few candidates: top-S fill
-            cand = np.zeros(N, bool)
-            cand[np.argsort(-S, kind="stable")[:k]] = True
-        e = np.clip(s.E / s.E_init, 0.0, 1.0)
-        close = 1.0 - s.d_bs / max(float(s.d_bs[a].max()), 1e-9)
-        w = self.ACTIONS[act]
-        rank = np.where(cand, w[0] * e + w[1] * close + w[2] * S, -np.inf)
-        heads = np.zeros(N, bool)
-        heads[np.argsort(-rank, kind="stable")[:k]] = True
-
-        # cooperative multi-hop: forward only to heads strictly closer to the BS -> acyclic
-        hp = np.full(N, -1, dtype=np.int64)
-        hi = np.flatnonzero(heads)
-        bs_cost = s.d_bs ** 2 / (10.0 * self.Emax_init)
-        for i in hi:
-            best, bc = -1, bs_cost[i]
-            for j in hi[s.d_bs[hi] < s.d_bs[i]]:
-                c = s.D[i, j] ** 2 / max(s.E[j], 1e-12)
-                if c < bc:
-                    best, bc = int(j), c
-            hp[i] = best
-        self.prev = (st, act, float(s.E.sum()), heads.copy())
-        return nearest_head_structure(s, heads, hp)

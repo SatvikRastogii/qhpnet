@@ -12,7 +12,7 @@ from engine import World, tx_cost
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "results")
 TAB = os.path.join(HERE, "paper", "tables")
-ORDER = ["Direct", "LEACH", "PEGASIS", "TEEN", "NSGA-II", "Fuzzy-T2", "DQN", "HIECF", "QHP-Net"]
+ORDER = ["Direct", "LEACH", "PEGASIS", "TEEN", "NSGA-II", "Fuzzy-T2", "DQN", "QHP-Net"]
 PROPOSED = "QHP-Net"
 
 
@@ -132,7 +132,7 @@ def headline():
                 r["p_holm"] = pa
                 print(f"{metric:5s} vs {p:9s} n={r['n']} diff {r['diff']:9.3f} CI [{r['lo']:9.3f},{r['hi']:9.3f}] "
                       f"t={r['t']:8.2f} p={r['p']:.2e} pHolm={pa:.2e} dz={r['dz']:6.2f} SW={r['sw']:.3f} Wil={r['wil']:.2e}")
-                if metric in ("FND", "AUC") and p in ("NSGA-II", "DQN", "HIECF", "PEGASIS", "Fuzzy-T2", "LEACH"):
+                if metric in ("FND", "AUC") and p in ("NSGA-II", "DQN", "PEGASIS", "Fuzzy-T2", "LEACH"):
                     sc = 1e-3 if metric == "AUC" else 1
                     unit = " ($\\times10^3$)" if sc != 1 else ""
                     lines.append(f"{metric}{unit} & {p} & {r['diff']*sc:+,.1f} & "
@@ -141,7 +141,7 @@ def headline():
         write(f"ttest_{'lossy' if lossy else 'ideal'}.tex", "\n".join(lines) + "\n")
 
     # compact table: FND and AUC differences on both channels
-    opps = ["LEACH", "PEGASIS", "TEEN", "NSGA-II", "Fuzzy-T2", "DQN", "HIECF"]
+    opps = ["LEACH", "PEGASIS", "TEEN", "NSGA-II", "Fuzzy-T2", "DQN"]
     cols = (("FND", True, 1), ("FND", False, 1), ("AUC", True, 1e-3), ("AUC", False, 1e-3))
     res = {}
     for metric, lossy, sc in cols:                     # Holm per column, across opponents

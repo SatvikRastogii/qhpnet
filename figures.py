@@ -15,7 +15,7 @@ os.makedirs(FIG, exist_ok=True)
 # validated categorical slots 1-3 (all-pairs safe); everything else recedes to gray with dashes
 COL = {PROPOSED: "#2a78d6", "NSGA-II": "#eb6834", "DQN": "#1baf7a"}
 GRAY = {"LEACH": ("#52514e", (0, (4, 2))), "PEGASIS": ("#7a7974", (0, (1, 1.5))),
-        "HIECF": ("#3d3c39", (0, (6, 2, 1, 2))), "Fuzzy-T2": ("#9b9a94", (0, (3, 1, 1, 1))),
+        "Fuzzy-T2": ("#9b9a94", (0, (3, 1, 1, 1))),
         "Direct": ("#b5b4ad", (0, (1, 3)))}
 INK, MUTED = "#0b0b0b", "#52514e"
 plt.rcParams.update({
@@ -52,7 +52,7 @@ def curves(rows, key, lossy, prots):
 
 
 def fig_alive(rows):
-    prots = ["Direct", "LEACH", "PEGASIS", "Fuzzy-T2", "HIECF", "DQN", "NSGA-II", PROPOSED]
+    prots = ["Direct", "LEACH", "PEGASIS", "Fuzzy-T2", "DQN", "NSGA-II", PROPOSED]
     fig, axes = plt.subplots(1, 2, figsize=(W1 * 2.05, 1.9), sharey=True)
     for ax, lossy in zip(axes, (True, False)):
         cv = curves(rows, "alive_curve", lossy, prots)
@@ -71,7 +71,7 @@ def fig_alive(rows):
 
 
 def fig_energy(rows):
-    prots = ["LEACH", "PEGASIS", "HIECF", "DQN", "NSGA-II", PROPOSED]
+    prots = ["LEACH", "PEGASIS", "Fuzzy-T2", "DQN", "NSGA-II", PROPOSED]
     fig, ax = plt.subplots(figsize=(W1, 1.8))
     for p, y in curves(rows, "energy_curve", True, prots).items():
         ax.plot(np.arange(y.size) * 10, y, label=p, **style(p))
@@ -101,7 +101,7 @@ def fig_strip(rows):
 
 def fig_paired(rows):
     g = by(rows, "protocol", "lossy")
-    opps = ["LEACH", "PEGASIS", "Fuzzy-T2", "DQN", "HIECF", "NSGA-II"]
+    opps = ["LEACH", "PEGASIS", "Fuzzy-T2", "DQN", "NSGA-II"]
     fig, axes = plt.subplots(1, 2, figsize=(W1 * 2.05, 1.7), sharey=True)
     for ax, lossy in zip(axes, (True, False)):
         Q = g.get((PROPOSED, lossy), {})

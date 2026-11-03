@@ -33,7 +33,6 @@ P = {
     "NSGA-II": ("protocols.nsga2", "NSGA2", {}),
     "Fuzzy-T2": ("protocols.fuzzy", "FuzzyT2", {}),
     "DQN": ("protocols.dqn", "DQN", {}),
-    "HIECF": ("protocols.fuzzy", "HIECF", {}),
     "QHP-Net": ("protocols.qhp", "QHPNet", {}),
     "NSGA-II (warm start)": ("protocols.nsga2", "NSGA2", {"warm": True, "name": "NSGA-II (warm start)"}),
 }
@@ -48,8 +47,8 @@ ABLATION = {
     "+ Physarum router": {"physarum": True},
 }
 ALL = [p for p in P if p != "NSGA-II (warm start)"]
-SWEEP_P = ["Direct", "LEACH", "PEGASIS", "NSGA-II", "DQN", "HIECF", "QHP-Net"]
-CENTRAL = ["NSGA-II", "Fuzzy-T2", "DQN", "HIECF", "QHP-Net"]
+SWEEP_P = ["Direct", "LEACH", "PEGASIS", "NSGA-II", "DQN", "QHP-Net"]
+CENTRAL = ["NSGA-II", "Fuzzy-T2", "DQN", "QHP-Net"]
 
 
 def jobs(exp):
@@ -72,7 +71,7 @@ def jobs(exp):
                         yield name, name, cfg_for(N, W), sd
     elif exp == "hetero":
         c = replace(base, het_m=0.2, het_b=0.1, het_alpha=1.0, het_beta=2.0)
-        for name in ["LEACH", "PEGASIS", "NSGA-II", "Fuzzy-T2", "DQN", "HIECF", "QHP-Net"]:
+        for name in ["LEACH", "PEGASIS", "NSGA-II", "Fuzzy-T2", "DQN", "QHP-Net"]:
             for sd in SEEDS:
                 yield name, name, c, sd
     elif exp == "warm":

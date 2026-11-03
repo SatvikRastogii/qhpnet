@@ -1,0 +1,385 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{figures/}}
+\newcommand{\fndbound}{2,436}
+\newcommand{\fndfrac}{87.6}
+
+\begin{document}
+
+\title{QHP-Net: Quorum Sensing, Hippopotamus Optimisation and Pheromone-Learned Routing for Maximum-Lifetime Green Wireless Sensor Networks}
+
+\author{\IEEEauthorblockN{Ashish Sharma\IEEEauthorrefmark{1}, Satvik Rastogi\IEEEauthorrefmark{2}, Ansh Rai\IEEEauthorrefmark{2}, Lakshay Gupta\IEEEauthorrefmark{2}, Vansh Tomar\IEEEauthorrefmark{2}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Assistant Professor, \IEEEauthorrefmark{2}Student, Department of Computer Science and Engineering\\
+Maharaja Agrasen Institute of Technology, Delhi, India\\
+ashish@mait.ac.in, yogeshsharma@mait.ac.in, satvikrastogi777@gmail.com,\\ raiansh230405@gmail.com, lakshay2212004@gmail.com, vanshwar@gmail.com}}
+
+\maketitle
+
+\begin{abstract}
+A wireless sensor network's lifetime is decided by three choices: which nodes may become cluster heads, which of them serve and who joins whom, and how heads reach the sink. We propose QHP-Net, which gives each choice its own bio-inspired mechanism, each aimed at a failure mode measured in our earlier nine-protocol study. Bacterial quorum sensing with a refractory term picks rested, locally strong candidates. Hippopotamus Optimisation selects heads by minimising the predicted bottleneck stress $\max_i \text{drain}_i/E_i$, and members join whichever head, or the sink directly, minimises their stress. An ant-pheromone link memory learns per-link delivery probability from ARQ acknowledgements alone and drives ETX-aware forwarding. We evaluated QHP-Net against seven protocols, including NSGA-II, the best full-yield protocol of the earlier study, in one engine with energy conservation asserted, over 30 paired topologies. On the lossy channel QHP-Net's first node dies at round 2,133, 249 rounds (13.2\%) after NSGA-II's and 45--52\% after the fuzzy and DQN selectors. It wins in all 30 topologies (paired $t(29)=46.2$, $p_{Holm}<10^{-27}$, $d_z=8.4$, confirmed by Wilcoxon), delivers 98.3\% of readings at 16\% less energy per reading, and reaches \fndfrac\% of a physical upper bound. Its gain persists without packet loss (+168 rounds), under heterogeneous energy, with uplink costs charged, and across a nine-cell size sweep. An ablation shows that each selection and clustering mechanism contributes 42--328 rounds, that learned link quality is as good as the true link quality, and that a Physarum congestion router performs worse.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Wireless sensor networks, network lifetime, green networking, cluster-head selection, quorum sensing, hippopotamus optimization, ant colony, ETX routing, paired t-test, ablation study.
+\end{IEEEkeywords}
+%% ======================================================================
+\section{Introduction}
+%% ======================================================================
+A sensor node's battery is rarely replaced and its radio dominates its energy use, so the way a network organises its transmissions decides how long it lives~\cite{heinzelman2002leachc}. In clustering, members send to a cluster head (CH), which fuses their data and makes the one expensive transmission to the base station (BS)~\cite{heinzelman2000leach}. Every clustering protocol makes three decisions, implicitly or explicitly: \emph{who may become a head} (candidacy), \emph{which candidates serve and who joins whom} (selection and clustering), and \emph{how heads reach the sink} (routing).
+
+Our previous study rebuilt nine protocols in one paired simulation engine, and three of its findings motivate this paper. (i) Among protocols that deliver every reading, the multi-objective NSGA-II selector~\cite{deb2002nsga2} had the latest first node death (FND); the reactive TEEN family lived longer only by suppressing about 89\% of the readings~\cite{manjeshwar2001teen}. (ii) Learned selectors concentrated the head duty on a few nodes (duty Gini up to 0.70), which is what killed them early. (iii) Near the sink, clustering costs more than it saves, because a member's reading pays radio electronics twice, once to send and once to receive. Recent hybrids also tend to layer fuzzy logic, reinforcement learning and multi-hop routing on top of one another, but they are rarely compared against faithful implementations of their baselines under the same channel and energy model, so it is hard to tell whether their reported margins are real or an artefact of the setup.
+
+This paper proposes \textbf{QHP-Net}, which gives each of the three decisions its own bio-inspired mechanism, each aimed at one of those measured failure modes. The first is \textbf{electing candidates through bacterial quorum sensing}~\cite{miller2001quorum}. Inspired by how bacteria talk to one another, each node broadcasts a signal proportional to its battery level, dialling it down for a cooling-off period after active duty. A node volunteers for leadership only if its voice stands out above the chatter of its neighbours. This simple feedback loop guarantees that chosen candidates are fresh, well-resourced, and evenly spaced across the field, resolving the duty concentration in (ii). The second is \textbf{selection and clustering by Hippopotamus Optimisation (HO)}~\cite{amiri2024hippo}, which minimises the predicted \emph{bottleneck stress} $\max_i \text{drain}_i/E_i$ rather than total energy~\cite{chang2004maxlife}. Members join whichever head, \emph{or the sink directly}, minimises their stress contribution. This switches clustering off where it does not pay (iii). The third is \textbf{routing with an ant-pheromone link memory}~\cite{dorigo2006aco}. The protocol is never told the link quality. Each ARQ attempt evaporates a link's trail and each acknowledgement deposits on it, so the trail converges to the delivery probability. That probability gives an ETX~\cite{decouto2003etx} for forwarding between heads.
+
+We compare QHP-Net with seven protocols in one engine, from classic LEACH and PEGASIS to NSGA-II and a DQN selector, over 30 paired topologies on lossy and ideal channels. We also test a 3$\times$3 size sweep, heterogeneous energy and stricter control accounting. The analysis uses Holm-corrected paired $t$-tests with Wilcoxon confirmation and a seven-variant ablation. QHP-Net's parameters were fixed on separate tuning seeds before any test run.
+
+%% ======================================================================
+\section{Recent Work}
+%% ======================================================================
+Recent cluster head (CH) selection literature has leaned heavily into swarm metaheuristics. Representative works range from an improved Harris hawks optimiser paired with fuzzy relays (HHOCFR)~\cite{jing2024hhocfr} to a multi-objective grey wolf formulation (MOGWO)~\cite{sennan2025mogwo}. Interestingly, rigorous statistical validation remains sparse; BSBOC, a binary secretary-bird optimiser, stands out as one of the few to substantiate its gains with a Wilcoxon rank-sum test~\cite{abdulkareem2025bsboc}. Researchers have also embraced hybrid designs---pairing bat and artificial bee colonies~\cite{mohammed2026baabc}, occasionally bolstered by multi-agent reinforcement learning (MARL) for routing~\cite{mohammed2026marl}, or coupling quantum PSO with dueling double DQNs~\cite{liu2026qpsodrl}. Beyond conventional animal swarms, slime-mould behavior has inspired strategies for both CH election~\cite{belloula2026smawsn} and routing~\cite{zhang2013pirp}, while the Hippopotamus Optimiser (HO) has been tailored to scenarios involving mobile sinks~\cite{kaushal2025hoam}.
+
+Table~\ref{tab:recent} shows two recurring gaps. Few works model link loss, so they miss the retransmission cost on long sink hops that our earlier study found decisive. Few report significance tests. To our knowledge, from searches of Crossref, OpenAlex and Europe PMC, no WSN protocol combines quorum sensing for candidacy, a metaheuristic for selection and a learned pheromone link memory for routing.
+
+\begin{table}[t]
+\caption{Closest recent works. ``Loss'' = packet loss modelled; ``Test'' = significance test reported.}
+\label{tab:recent}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lllcc@{}}
+\toprule
+Work & CH selection & Routing & Loss & Test\\
+\midrule
+HHOCFR~\cite{jing2024hhocfr} & Improved HHO & Fuzzy relay CH & -- & --\\
+MOGWO~\cite{sennan2025mogwo} & MO grey wolf & Single hop & -- & --\\
+BSBOC~\cite{abdulkareem2025bsboc} & Secretary bird & Single hop & -- & Wilcoxon\\
+MARL-BA-ABC~\cite{mohammed2026marl} & Bat + ABC & Multi-agent RL & partial & --\\
+SMA-WSN~\cite{belloula2026smawsn} & Slime mould alg. & Per hop & failures & CI\\
+HOAM~\cite{kaushal2025hoam} & Hippopotamus & Mobile sink & -- & --\\
+\textbf{QHP-Net} & QS + HO & Pheromone ETX & \checkmark & paired $t$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ======================================================================
+\section{System Model}
+%% ======================================================================
+$N$ static nodes are placed uniformly in a $W\times W$ field with the BS outside it at $(W/2,1.5W)$; the headline case is $N{=}100$, $W{=}100$\,m, $E_0{=}1$\,J (Table~\ref{tab:params}). Every node senses one reading per round, carried in a $k{=}4000$-bit packet. Radio energy follows the first-order model~\cite{heinzelman2002leachc},
+\begin{equation}
+E_{tx}(k,d)=kE_{el}+\begin{cases}k\varepsilon_{fs}d^2, & d<d_0\\ k\varepsilon_{mp}d^4, & d\ge d_0\end{cases},\qquad E_{rx}(k)=kE_{el},
+\label{eq:radio}
+\end{equation}
+with $d_0=\sqrt{\varepsilon_{fs}/\varepsilon_{mp}}=87.7$\,m and a fusion charge $E_{DA}$ per bit received. A head emits one fused packet regardless of how many it receives (ideal fusion). Packet loss comes from a link budget: log-distance path loss with exponent $n{=}3$ and a per-link shadowing term $X_{ij}\sim\mathcal N(0,4^2)$\,dB drawn once per topology~\cite{rappaport2002wireless}, non-coherent BFSK bit errors, and $\text{PER}_{ij}=1-(1-\text{BER}_{ij})^k$. Failed packets are retried up to twice, and every attempt pays full transmit and receive energy. Control packets are 200 bits. Distributed protocols pay advertisement, join and TDMA schedule; centralised ones pay the schedule and the sink's downlink, and every transmitting non-head receives a schedule each round. A protocol returns only heads and next hops. It cannot write energy, and energy conservation is asserted to $10^{-9}$\,J in every run.
+
+\begin{table}[t]
+\caption{Simulation parameters (shared by all protocols)}
+\label{tab:params}
+\centering\footnotesize
+\begin{tabular}{@{}ll@{\hspace{8pt}}ll@{}}
+\toprule
+$N$, field & 100, $100{\times}100$\,m & $E_{el}$ & 50\,nJ/bit\\
+BS & (50, 150)\,m & $\varepsilon_{fs}$ & 10\,pJ/bit/m$^2$\\
+$E_0$ & 1\,J & $\varepsilon_{mp}$ & 0.0013\,pJ/bit/m$^4$\\
+Data / ctrl & 4000 / 200 bits & $E_{DA}$ & 5\,nJ/bit\\
+Head fraction $p$ & 0.05 & $P_t$, $PL_{1m}$ & 12\,dBm, 40\,dB\\
+Re-cluster & every 5 rounds & $n$, $\sigma$, noise & 3.0, 4\,dB, $-105$\,dBm\\
+Round cap & 7000 & ARQ retries & 2\\
+Paired runs & 30 per setting & Readings & Ornstein--Uhlenbeck\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ======================================================================
+\section{Proposed QHP-Net}
+%% ======================================================================
+QHP-Net re-clusters every five rounds, and immediately if a head dies (Fig.~\ref{fig:arch}). The sink runs layers 2 and 3 from the state that candidates report. Let $E_i$ be the residual energy, $r_i^h$ the last round node $i$ served as head, and $k_h=\max(1,\text{round}(p\,N_{alive}))$ the head count shared by all protocols.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\scriptsize, node distance=3mm,
+  box/.style={draw=black!60, rounded corners=2pt, align=center, minimum width=2.45cm, minimum height=0.95cm, fill=#1},
+  box/.default=white, arr/.style={-{Stealth[length=4pt]}, black!70}]
+\node[box=blue!6] (qs) {\textbf{L1: Quorum sensing}\\autoinducer $a_i$, refractory $\phi_i$\\candidates $\mathcal C$};
+\node[box=orange!8, right=of qs] (ho) {\textbf{L2: Hippopotamus opt.}\\min bottleneck stress\\heads $\mathcal H$, stress-aware join};
+\node[box=green!6, right=of ho] (ph) {\textbf{L3: Pheromone routing}\\ACK-learned ETX\\next hop per head};
+\node[box=black!4, below=4mm of ho, minimum width=7.9cm] (eng) {Engine: data round, ARQ retries, fusion, energy accounting};
+\draw[arr] (qs) -- (ho); \draw[arr] (ho) -- (ph);
+\draw[arr] (ph.south) |- ([yshift=1.5mm]eng.east);
+\draw[arr] ([xshift=-14mm]eng.north) -- node[left,align=right]{beacons every\\4 epochs} ([xshift=0mm]qs.south);
+\draw[arr, dashed] ([xshift=10mm]eng.north) -- node[right,align=left]{ACK\\outcomes} ([xshift=-6mm]ph.south);
+\end{tikzpicture}
+\caption{QHP-Net. Each layer uses a different bio-inspired mechanism. Dashed: per-round ACK feedback used to learn link pheromone.}
+\label{fig:arch}
+\end{figure}
+
+\subsection{Layer 1: Quorum-Sensing Candidacy}
+Every node secretes an autoinducer~\cite{miller2001quorum}
+\begin{equation}
+a_i=\frac{E_i}{\bar E_0}\,(1-\phi_i),\qquad \phi_i=e^{-(r-r_i^h)/\tau},
+\label{eq:secretion}
+\end{equation}
+where $\phi_i$ is a refractory term that silences a node that has just served ($\phi_i=0$ if it never has). Neighbours within the density radius $\rho$ exchange $a_i$ in one beacon. Each node computes, from the beacons it hears and nothing else, the kernel-weighted concentration and its quorum ratio,
+\begin{equation}
+C_i=\frac{\sum_j K_{ij}a_j}{\sum_j K_{ij}},\quad K_{ij}=e^{-d_{ij}^2/2\rho^2}\mathbb 1[d_{ij}<\rho],\quad q_i=\frac{a_i}{C_i}.
+\label{eq:quorum}
+\end{equation}
+A node with $q_i\ge1$ out-secretes its neighbourhood and expresses the candidate phenotype. The pool is the top $n_c$ nodes by $q_i(1-\phi_i)$, with $n_c=\text{clip}(|\{q_i\ge1\}|,3k_h,8k_h)$. Because $q_i$ is \emph{relative}, every region contributes candidates even late in life. Beacons, sent every four epochs, are charged as control packets; between them the sink applies the refractory factor itself. As for every centralised protocol here, node state reaches the sink on data traffic; QHP-Net additionally pays a 200-bit report per candidate, and Section~\ref{sec:robust} charges every protocol's uplink.
+
+\subsection{Layer 2: Hippopotamus-Optimised Selection and Clustering}
+\emph{Stress model.} For a head set $\mathcal H$, let $\text{ETX}_{ij}=1+\hat p_{ij}+\hat p_{ij}^2$ be the expected number of attempts (at most three) under the learned loss estimate~\cite{decouto2003etx} $\hat p_{ij}$ (Layer 3), with $c_{ij}=\text{ETX}_{ij}E_{tx}(k,d_{ij})$ and $\hat c_{ij}=\text{ETX}_{ij}(E_{rx}(k)+kE_{DA})$. Each alive non-head node joins
+\begin{equation}
+h^\star(i)=\arg\min_{h\in\mathcal H\cup\{\text{BS}\}}\;\sigma_{ih},\quad \sigma_{ih}=\frac{c_{ih}}{E_i}+\frac{\hat c_{ih}}{E_h},\ \ \sigma_{i\,\text{BS}}=\frac{c_{i\,\text{BS}}}{E_i},
+\label{eq:join}
+\end{equation}
+charging each joule to the battery that pays it. Clusters shrink around weak heads, and nodes whose sink hop is cheaper than a second reception transmit directly (the \emph{direct regime}). Summing transmissions and receptions gives the predicted per-round drain $D_i(\mathcal H)$, and the fitness is
+\begin{equation}
+F(\mathcal H)=\max_i\frac{D_i}{E_i}+\mu\,\frac{1}{N_{alive}}\sum_i\frac{D_i}{E_i},
+\label{eq:fitness}
+\end{equation}
+whose first term is the reciprocal of the predicted time to the next death~\cite{chang2004maxlife}.
+
+\emph{Search.} A herd of $P{=}20$ hippopotamuses encodes $k_h$ points in the field; each point decodes to the nearest unused candidate. HO~\cite{amiri2024hippo} runs three greedily accepted phases for $T{=}25$ iterations. In the river phase males move toward the dominant hippo, $X_i'=X_i+y_1(D_{hippo}-I_1X_i)$, and immatures toward or away from a random group mean. Predator defence applies a L\'evy step~\cite{mantegna1994levy}, $X_i'=RL\odot X_{pred}+\frac{b}{c-d\cos 2\pi g}\cdot\frac{1}{\delta_i}$. Escape is a shrinking local search, $X_i'=X_i+r(\frac{lb}{t}+s_1(\frac{ub}{t}-\frac{lb}{t}))$. The herd is seeded with the top-$k_h$ quorum candidates and the previous epoch's best.
+
+\subsection{Layer 3: Pheromone-Learned Routing}
+Each node keeps a pheromone $\tau_{ij}\in(0,1]$ per link, initialised to 1: the protocol is given no channel model, no path-loss parameters and no knowledge of whether the channel is lossy. After each data packet with $n$ attempts,
+\begin{equation}
+\tau_{ij}\leftarrow\tau_{ij}(1-\varrho)^{n}+\varrho\,\mathbb 1[\text{acked}],\qquad \hat p_{ij}=1-\tau_{ij},
+\label{eq:pheromone}
+\end{equation}
+which is the ant-colony evaporate-and-deposit rule~\cite{dorigo2006aco} applied to delivery. Its fixed point is the per-attempt success probability, learned from acknowledgements the sender already receives. A head forwards to $\arg\min_{j}\sigma_{hj}$ over the BS and the heads strictly closer to it, so routes are acyclic. With ideal fusion every downstream head transmits anyway, so $\sigma_{hj}$ is the exact marginal cost. The same rule is used inside $F$, so the optimiser and the deployed routes agree.
+
+Algorithm~\ref{alg:qhp} summarises one epoch. Its cost is $O(N\rho^2)$ for quorum sensing and $O(PT\,N k_h)$ for the search, vectorised at the sink.
+
+\begin{algorithm}[t]
+\caption{QHP-Net epoch (every 5 rounds or on head death)}
+\label{alg:qhp}
+\footnotesize
+\begin{algorithmic}[1]
+\Require residual energies $E$, head history $r^h$, pheromone $\tau$
+\State $\hat p\gets 1-\tau$;\ \ $\text{ETX}\gets 1+\hat p+\hat p^2$ \Comment{L3 memory}
+\If{beacon epoch} each node broadcasts $a_i$ (Eq.~\ref{eq:secretion}); compute $q_i$ (Eq.~\ref{eq:quorum}) \EndIf
+\State $\mathcal C\gets$ top-$n_c$ nodes by $q_i(1-\phi_i)$; candidates report state \Comment{L1}
+\State initialise herd $X\in[0,W]^{P\times k_h\times2}$; seed with top-$k_h$ of $\mathcal C$ and last best
+\For{$t=1\ldots T$} \Comment{L2: HO}
+  \State river phase (males $\to D_{hippo}$; immatures $\to/\leftarrow MG$); greedy accept
+  \State predator defence with L\'evy flight; greedy accept
+  \State escape inside bounds $[lb/t,ub/t]$; greedy accept
+\EndFor
+\State $\mathcal H\gets$ decode$(X_{best})$; heads route to $\arg\min_j\sigma_{hj}$ \Comment{L3}
+\State members join $h^\star(i)$ or the BS (Eq.~\ref{eq:join})
+\For{each round of the epoch} transmit; update $\tau$ from ACKs (Eq.~\ref{eq:pheromone}) \EndFor
+\end{algorithmic}
+\end{algorithm}
+
+%% ======================================================================
+\section{Experimental Design}
+%% ======================================================================
+\emph{Protocols.} Direct transmission, LEACH~\cite{heinzelman2000leach}, PEGASIS~\cite{lindsey2002pegasis}, TEEN~\cite{manjeshwar2001teen}, NSGA-II (population 40, 30 generations, three objectives)~\cite{deb2002nsga2}, an interval type-2 fuzzy selector with 27 rules and Karnik--Mendel reduction~\cite{karnik1999type2}, a $4{\to}16{\to}2$ DQN~\cite{mnih2015dqn} trained offline on 40 disjoint seeds and then frozen, and QHP-Net. All share the engine and $k_h$. NSGA-II and QHP-Net re-optimise every 5 rounds or on a head death; LEACH, TEEN, Fuzzy-T2 and DQN re-cluster every round, as in our previous study.
+
+\emph{Pairing and seeds.} Seed $i$ fixes the positions, energies, shadowing matrix and readings, so all protocols at index $i$ face an identical world. Test seeds are $0$--$29$. QHP-Net's parameters ($\tau{=}20$, $\mu{=}0.5$, $\varrho{=}0.1$, $P{=}20$, $T{=}25$, beacon period 4) were chosen on seeds $500$--$505$ only. Every setting is run with packet loss and on an ideal channel.
+
+\emph{Metrics.} FND, HND and LND (first, half and last death; censored at 7000), area under the alive curve (AUC), yield (readings delivered over taken) and energy per delivered reading.
+
+\emph{Statistics.} For each metric we form 30 per-seed differences $\Delta_i=x_i^{\text{QHP}}-x_i^{\text{opp}}$ and apply a two-sided paired $t$-test. We report the mean difference, its 95\% $t$-interval, Cohen's $d_z=\bar\Delta/s_\Delta$~\cite{cohen1988power}, Holm-corrected $p$ across opponents~\cite{holm1979simple}, a Shapiro--Wilk test of normality on $\Delta$~\cite{shapiro1965analysis}, and the Wilcoxon signed-rank $p$~\cite{wilcoxon1945individual} as a distribution-free check.
+
+%% ======================================================================
+\section{Previous Study and the Opponent}
+%% ======================================================================
+Table~\ref{tab:prev} places the first-death results of our previous nine-protocol study next to the same protocols rerun in this engine, which reimplements its harness from the parameters alone. Every mean is within 5\% of the earlier value; the largest gaps are TEEN ($+4.0\%$) and the retrained DQN ($-4.7\%$). TEEN has the latest FND in both studies, but only by delivering about 11\% of the readings. Among protocols that deliver what they sense, NSGA-II had the latest FND, 827 rounds ahead of LEACH ($p_{Holm}{=}0.0004$), so \textbf{NSGA-II is the primary opponent of the paired $t$-test}.
+
+\begin{table}[t]
+\caption{First node death (rounds, lossy channel): previous study~\cite{sharma2026unified} vs.\ this engine, 30 paired runs each}
+\label{tab:prev}
+\centering\footnotesize
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Protocol & Previous study & This engine & Yield (this)\\
+\midrule
+Direct & 114 & 115 & 0.967\\
+LEACH & 1,046 & 1,051 & 0.867\\
+PEGASIS & 1,588 & 1,600 & 0.827\\
+TEEN & 2,208 & 2,297 & 0.107\\
+NSGA-II & \textbf{1,873} & \textbf{1,884} & 0.888\\
+Fuzzy-T2 & 1,462 & 1,476 & 0.899\\
+DQN & 1,472 & 1,403 & 0.882\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ======================================================================
+\section{Simulation Results}\label{sec:results}
+%% ======================================================================
+\subsection{Lifetime, Delivery and Energy}
+Table~\ref{tab:life} and Fig.~\ref{fig:alive} give the lossy-channel results. QHP-Net's first death comes at round $2{,}133\pm19$: 249 rounds (13.2\%) after NSGA-II, 45--52\% after the fuzzy and DQN selectors, and 2.0$\times$ after LEACH. Its FND standard deviation is 0.58 of NSGA-II's and one fifteenth of PEGASIS's. Only TEEN dies later, and only because it suppresses 89\% of the readings.
+
+QHP-Net delivers 98.3\% of the readings it senses, the highest yield of any clustered protocol, and spends 0.470\,mJ per delivered reading, 16\% less than the cheapest baseline (PEGASIS and NSGA-II, 0.56\,mJ). It lives longer \emph{and} delivers more data per joule, which is the green-network result. Retransmissions take 0.2\% of its budget, against 3.6\% for NSGA-II and 5.3\% for LEACH, because the learned ETX keeps sink hops out of the packet-error waterfall. This holds although it pays the largest control share of the centralised protocols (5.3\%).
+
+Max--min balancing has a cost. Nodes run down together, so HND follows FND by only 32 rounds and the last node dies at round 2,208, before NSGA-II (2,397), DQN (2,477), PEGASIS (2,560) and Direct (3,186). For coverage, keeping every node alive to round 2,133 is worth more than keeping a few to round 2,500. On the area under the alive curve, which counts both, QHP-Net ties PEGASIS ($216.4$ vs.\ $216.2\times10^3$, n.s.) and beats every other full-yield protocol, NSGA-II by $15.4\times10^3$.
+
+\emph{Upper bound.} Until the first death every reading must leave its node each round, costing at least one transmission plus either the sink amplifier or a reception and fusion elsewhere. Summing this floor, with no control, retries or relaying, bounds FND at \fndbound{} rounds on average; QHP-Net reaches \fndfrac\% of it.
+
+\begin{table}[t]
+\caption{Lifetime on the lossy channel, mean $\pm$ s.d.\ over 30 paired runs. AUC in $10^3$ node-rounds; mJ per delivered reading. $^c$\,censored at the 7000-round cap in every run.}
+\label{tab:life}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Protocol & FND & HND & LND & AUC & Yield & mJ/rd\\
+\midrule
+Direct & 115 $\pm$ 10 & 1,140 $\pm$ 200 & 3,186 $\pm$ 83 & 132.6 & 0.967 & 0.78 \\
+LEACH & 1,051 $\pm$ 51 & 1,674 $\pm$ 28 & 2,160 $\pm$ 43 & 166.4 & 0.867 & 0.69 \\
+PEGASIS & 1,600 $\pm$ 286 & 2,202 $\pm$ 9 & 2,560 $\pm$ 290 & 216.2 & 0.827 & 0.56 \\
+TEEN & 2,297 $\pm$ 145 & 5,975 $\pm$ 223 & $>$7,000$^c$ & 558.9 & 0.107 & 1.65 \\
+NSGA-II & 1,884 $\pm$ 33 & 1,984 $\pm$ 28 & 2,397 $\pm$ 151 & 201.1 & 0.888 & 0.56 \\
+Fuzzy-T2 & 1,476 $\pm$ 61 & 1,922 $\pm$ 28 & 2,208 $\pm$ 52 & 189.2 & 0.899 & 0.59 \\
+DQN & 1,403 $\pm$ 52 & 1,875 $\pm$ 31 & 2,477 $\pm$ 79 & 189.0 & 0.882 & 0.60 \\
+\textbf{QHP-Net} & 2,133 $\pm$ 19 & 2,165 $\pm$ 17 & 2,208 $\pm$ 27 & 216.4 & 0.983 & 0.47 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{alive}
+\caption{Alive nodes per round, mean of 30 paired topologies (TEEN, censored at 7000 rounds, is omitted). QHP-Net keeps all 100 nodes alive longest under both channel models, and its curve does not move when packet loss is removed.}
+\label{fig:alive}
+\end{figure*}
+
+\subsection{Paired $t$-Tests}
+Table~\ref{tab:ttest} tests the per-topology differences. QHP-Net's first death is later than that of every full-yield opponent in \emph{all} 30 topologies on both channels; its smallest single margin over NSGA-II is 198 rounds (lossy) and 137 (ideal). Against NSGA-II the mean FND gain is $+249$ rounds, 95\% CI $[+238,+260]$, $t(29)=46.2$, $p_{Holm}=3.2\times10^{-28}$, $d_z=8.4$. The AUC gain is $15.4\times10^3$ node-rounds ($t(29)=38.0$, $d_z=6.9$). Shapiro--Wilk does not reject normality for NSGA-II ($p{=}0.23$) but does for some pairs (PEGASIS FND, $p{=}0.001$), so every cell was confirmed with the Wilcoxon test. All cells but one are significant under both tests after Holm correction ($p\le1.0\times10^{-5}$).
+
+In our earlier study the FND gains of the fuzzy and DQN selectors over LEACH (417 and 426 rounds) shrank to an insignificant 17 and 22 on an ideal channel~\cite{sharma2026unified}. QHP-Net's gain does not vanish: without loss it still leads NSGA-II by 168 rounds ($d_z=8.6$) and every other full-yield protocol by 478--1,806. Its own FND is 2,133 on both channels, so its advantage comes from where energy is drawn, not only from avoiding loss. PEGASIS is the one opponent it does not beat on every metric: they tie on AUC under loss, and PEGASIS leads by $2.7\times10^3$ node-rounds on the ideal channel and reaches HND 37 rounds later. In exchange QHP-Net delivers 15.6 points more readings and its first node dies 533 rounds later.
+
+\begin{table*}[t]
+\caption{Paired differences QHP-Net $-$ opponent over 30 topologies: mean [95\% CI] and Cohen's $d_z$. Unless marked $^{ns}$, the difference is significant under both the paired $t$-test and the Wilcoxon test after Holm correction across opponents ($p\le1.0\times10^{-5}$). AUC in $10^3$ node-rounds. TEEN reaches its lead by delivering 11\% of the readings.}
+\label{tab:ttest}
+\centering\footnotesize
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+& \multicolumn{2}{c}{$\Delta$FND, lossy} & \multicolumn{2}{c}{$\Delta$FND, ideal} & \multicolumn{2}{c}{$\Delta$AUC, lossy} & \multicolumn{2}{c}{$\Delta$AUC, ideal}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(l){8-9}
+Opponent & mean [95\% CI] & $d_z$ & mean [95\% CI] & $d_z$ & mean & $d_z$ & mean & $d_z$\\
+\midrule
+LEACH & +1,082 [+1,062, +1,101] & 20.8 & +652 [+641, +662] & 23.0 & +50.0 & 19.9 & +42.2 & 24.9 \\
+PEGASIS & +533 [+425, +641] & 1.8 & +478 [+362, +594] & 1.5 & +0.3$^{ns}$ & 0.1 & -2.7 & -1.4 \\
+TEEN & -164 [-216, -111] & -1.2 & -2,154 [-2,207, -2,100] & -15.1 & -342.5 & -25.0 & -376.8 & -42.5 \\
+NSGA-II & +249 [+238, +260] & 8.4 & +168 [+161, +175] & 8.6 & +15.4 & 6.9 & +9.5 & 6.6 \\
+Fuzzy-T2 & +658 [+634, +682] & 10.3 & +632 [+609, +655] & 10.2 & +27.2 & 10.2 & +22.3 & 9.6 \\
+DQN & +730 [+710, +750] & 13.6 & +657 [+648, +666] & 26.8 & +27.5 & 10.9 & +20.9 & 12.2 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Ablation Study}
+Table~\ref{tab:abl} removes one mechanism at a time, paired against the full protocol on the 30 test topologies. Every selection and clustering mechanism pays for itself on both channels; the channel-learning layer pays only where there is loss to learn.
+
+\emph{Hippopotamus Optimisation} costs 103 rounds of FND under loss (85 ideal) and $5.4\times10^3$ node-rounds of AUC when replaced by the top-$k_h$ quorum candidates: a ranking cannot trade one head's member load against another's, the max-stress fitness can. \emph{Quorum sensing} adds 45--57 rounds over a pool of the most energetic nodes, because its refractory term and local normalisation stop the same well-placed nodes being drafted epoch after epoch. Without the \emph{direct regime}, members that are cheaper to serve straight to the sink pay a head's fusion and amplifier costs ($-56$ to $-58$ rounds).
+
+\emph{Stress-aware join} has the largest and most variable effect. Under loss, nearest-head joining costs 328 rounds on average (median 96), and more than 450 rounds in 8 of the 30 topologies, where members attach over links whose losses and load drain one head well ahead of the rest. Without loss the cost falls to 42 rounds. Its AUC is slightly \emph{higher} ($+1.2$ and $+2.0\times10^3$): the max--min trade-off again.
+
+\emph{The pheromone memory} is insurance. Without ETX the median cost is 9 rounds, but two topologies lose 317 and 388, so the mean ($-35$, $p_{Holm}=0.08$) is not significant while the AUC loss is ($p<0.001$). On the ideal channel removing it changes nothing ($+1.5$, n.s.). Learning link quality from ACKs alone is as good as knowing it: substituting the true per-link PER changes FND by $+1.9$ rounds (n.s.).
+
+\emph{A negative result.} A Physarum-inspired, congestion-aware router~\cite{tero2007physarum}, which reinforces paths in proportion to their flow, loses 80--84 rounds against greedy per-hop routing on both channels. Reinforcing the busiest paths concentrates relay load on the very nodes the max-stress fitness protects, so the two layers work against each other.
+
+\begin{table}[t]
+\caption{Ablation on the lossy channel (30 paired runs). $\Delta$ is variant $-$ full, Holm-adjusted paired-$t$ $p$ in parentheses. AUC in $10^3$ node-rounds.}
+\label{tab:abl}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Variant & FND & $\Delta$FND ($p$) & AUC & $\Delta$AUC ($p$) & Yield\\
+\midrule
+\textbf{QHP-Net (full)} & 2,133 & -- & 216.4 & -- & 0.983 \\
+w/o quorum sensing & 2,088 & -45 ($<$0.001) & 215.6 & -0.9 ($<$0.001) & 0.982 \\
+w/o hippopotamus opt. & 2,030 & -103 ($<$0.001) & 211.0 & -5.4 ($<$0.001) & 0.970 \\
+w/o direct regime & 2,076 & -58 ($<$0.001) & 210.5 & -5.9 ($<$0.001) & 0.987 \\
+w/o stress-aware join & 1,806 & -328 (0.001) & 217.6 & +1.2 ($<$0.001) & 0.986 \\
+w/o pheromone (no ETX) & 2,098 & -35 (0.076) & 215.7 & -0.7 ($<$0.001) & 0.975 \\
+oracle link quality & 2,135 & +2 (0.243) & 216.6 & +0.2 (0.055) & 0.989 \\
++ Physarum router & 2,053 & -80 ($<$0.001) & 209.2 & -7.2 ($<$0.001) & 0.970 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Robustness}\label{sec:robust}
+\emph{Warm-starting NSGA-II.} QHP-Net reuses its previous population; NSGA-II re-optimises from scratch. Giving NSGA-II the same warm start does not help it (FND 1,881 vs.\ 1,884 lossy, 1,968 vs.\ 1,965 ideal, both $p=0.48$), and QHP-Net still leads by $+252$ [$+241,+264$] rounds ($d_z=8.5$). The gain comes from the objective, not the memory.
+
+\emph{Heterogeneous energy.} With three energy levels (20\% of nodes advanced at $2E_0$, 10\% super at $3E_0$), QHP-Net's FND rises to 2,894, and its lead over NSGA-II grows to $+321$ rounds (Table~\ref{tab:robust}). Because the fitness divides drain by residual energy, load moves onto high-energy nodes without any heterogeneity-specific rule. (DQN was trained on homogeneous fields only.)
+
+\emph{Charging the uplink.} The headline runs, like the earlier study, let centralised protocols learn node state free from data traffic. If every alive node instead pays a 200-bit report at each re-clustering, QHP-Net loses 38 rounds and NSGA-II 43; Fuzzy-T2 and DQN lose 110 and 233, because they re-cluster every round. QHP-Net still wins all 30 topologies, by at least 200 rounds.
+
+\emph{Network size and field.} Table~\ref{tab:sweep} varies $N\in\{50,100,150\}$ and the field side $W$ from 50 to 150\,m (sink at $(W/2,1.5W)$, 15 paired topologies per cell). QHP-Net has the highest mean FND in all nine cells, beats the best other protocol in each under a paired $t$-test ($p<3\times10^{-6}$), and wins 134 of 135 topologies; the one loss, by 12 rounds, is 50 nodes on a 150\,m field. The margin grows with density: $+185$ to $+274$ rounds at 100\,m and $+299$ to $+809$ at 150\,m, where sink hops pay the multipath amplifier. On the 50\,m field, where Direct is competitive (2,297 at $N{=}50$), the direct regime uses it selectively and still adds 400--542 rounds.
+
+\begin{table}[t]
+\caption{Robustness on the lossy channel, 30 paired runs: three-level heterogeneity (top) and uplink state reports charged to every centralised protocol (bottom). AUC in $10^3$ node-rounds.}
+\label{tab:robust}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Protocol & FND & HND & AUC & Yield\\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Heterogeneous} ($m=0.2$, $b=0.1$)}\\
+LEACH & 1,057 $\pm$ 47 & 1,797 $\pm$ 31 & 225.3 & 0.877 \\
+PEGASIS & 1,673 $\pm$ 280 & 2,227 $\pm$ 5 & 295.1 & 0.834 \\
+NSGA-II & 2,573 $\pm$ 81 & 2,688 $\pm$ 65 & 280.5 & 0.888 \\
+Fuzzy-T2 & 2,085 $\pm$ 89 & 2,690 $\pm$ 59 & 265.8 & 0.898 \\
+DQN & 1,506 $\pm$ 86 & 2,181 $\pm$ 44 & 258.6 & 0.878 \\
+QHP-Net & 2,894 $\pm$ 64 & 2,963 $\pm$ 22 & 296.1 & 0.983 \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Uplink charged}}\\
+NSGA-II & 1,841 $\pm$ 32 & 1,942 $\pm$ 29 & 197.4 & 0.889 \\
+Fuzzy-T2 & 1,366 $\pm$ 55 & 1,761 $\pm$ 33 & 173.3 & 0.915 \\
+DQN & 1,170 $\pm$ 70 & 1,696 $\pm$ 42 & 172.9 & 0.883 \\
+QHP-Net & 2,095 $\pm$ 18 & 2,131 $\pm$ 17 & 213.1 & 0.983 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{Mean FND over 15 paired topologies per cell (lossy). Columns: field side $W$ (m) / number of nodes $N$.}
+\label{tab:sweep}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+& \multicolumn{3}{c}{$W=50$} & \multicolumn{3}{c}{$W=100$} & \multicolumn{3}{c}{$W=150$}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(l){8-10}
+Protocol & 50 & 100 & 150 & 50 & 100 & 150 & 50 & 100 & 150\\
+\midrule
+Direct & 2297 & 2020 & 1976 & 122 & 114 & 112 & 25 & 23 & 23 \\
+LEACH & 1808 & 1620 & 1578 & 642 & 1045 & 1106 & 154 & 313 & 354 \\
+PEGASIS & 2090 & 2083 & 2080 & 1463 & 1626 & 1554 & 624 & 772 & 810 \\
+NSGA-II & 2130 & 2186 & 2176 & 1787 & 1883 & 1875 & 761 & 1107 & 1124 \\
+DQN & 1562 & 1614 & 1677 & 1322 & 1389 & 1454 & 447 & 605 & 673 \\
+\textbf{QHP-Net} & 2697 & 2723 & 2718 & 1972 & 2138 & 2149 & 1060 & 1826 & 1933 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+%% ======================================================================
+\section{Limitations}
+%% ======================================================================
+Results are simulated under the first-order radio model with ideal fusion and no idle-listening or sleep energy. QHP-Net is centralised: its state reports are charged, but the sink's computation (25 iterations of a 20-agent herd every five rounds) is not. Max--min balancing trades last-node death for first-node death (2,208 vs.\ 2,397 for NSGA-II), so applications that value a few long-lived survivors should use another objective. Latency is not reported because our slot model biases it. A testbed, a duty-cycled MAC and mobile sinks are future work.
+
+%% ======================================================================
+\section{Conclusion}
+%% ======================================================================
+QHP-Net addresses candidacy, cluster selection and membership, and routing using three distinct bio-inspired mechanisms: quorum sensing, Hippopotamus Optimisation guided by bottleneck-stress fitness, and ant-pheromone link memory. Over 30 paired topologies it delays first-node death by 249 rounds over NSGA-II, the best full-yield protocol of our earlier study ($t(29)=46.2$, $d_z=8.4$), beats every full-yield protocol on FND in every topology, delivers 98.3\% of readings at 16\% less energy each, and reaches \fndfrac\% of a physical bound. Ablation confirms that all three layers contribute to these gains and reveals that the ACK-driven link memory performs on par with an omniscient oracle. For a green network, lifetime is set by the most stressed node, and every layer should be optimised against it directly.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}
